@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Últimas Actividades</title>
+</head>
+<body>
+    <h1>Últimas 5 Actividades</h1>
+    <input type="text" id="usuarioId" placeholder="Ingrese el ID del usuario">
+    <button onclick="cargarUltimasActividades()">Ver Mis Últimas Actividades</button>
+
+    <ul id="listaActividades"></ul>
+
+    <a href="/dashboard">Volver al Dashboard</a>
+
+    <script>
+        async function cargarUltimasActividades() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No estás autenticado.");
+                window.location.href = "/auth/login";
+                return;
+            }
+
+            const usuarioId = document.getElementById("usuarioId").value.trim();
+            if (!usuarioId) {
+                alert("Ingrese el ID de usuario");
+                return;
+            } 
+
+            try {
+                const response = await fetch(`http://localhost:3001/actividades/buscar/${usuarioId}/ultimas`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("No se pudieron obtener las últimas actividades.");
+                }
+
+                const actividades = await response.json();
+                const lista = document.getElementById("listaActividades");
+                lista.innerHTML = "";
+
+                if (actividades.length > 0) {
+                    actividades.forEach(act => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<strong>${act.nombre}</strong> - Categoría: ${act.categoria_id}`;
+                        lista.appendChild(li);
+                    });
+                } else {
+                    lista.innerHTML = "<p>No tienes actividades registradas.</p>";
+                }
+            } catch (error) {
+                console.log('Error en consulta', error);
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+

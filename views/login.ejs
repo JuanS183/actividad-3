@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <section id="reg">
+        <aside>
+            <h1>LOGIN</h1>
+            <form onsubmit="submitLogin(event)">
+                <div id="pgMsg"></div>
+                <div class="formGroup" id="emailGroup">
+                    <input type="email" name="email" placeholder="Correo Electrónico" required>
+                </div>
+                <div class="formGroup" id="passwordGroup">
+                    <input type="password" name="password" placeholder="Contraseña" required>
+                </div>
+                <button type="submit">Iniciar Sesión</button>
+                <h3>¿No tienes cuenta? <a href="/usuarios/crear">Regístrate</a></h3>
+            </form>
+        </aside>
+    </section>
+
+    <script>
+        const submitLogin = async (event) => {
+            event.preventDefault();
+
+            const email = document.querySelector('input[name="email"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+
+            const response = await fetch('http://localhost:3001/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.status === 200) {
+                localStorage.setItem('token', data.token);
+                alert('Inicio de sesión exitoso.');
+                window.location.href = "/dashboard"; // Redirigir a la página principal
+            } else {
+                document.getElementById("pgMsg").innerHTML = `<p style="color: red;">${data.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
+

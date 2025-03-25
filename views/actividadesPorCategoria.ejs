@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades por Categoría</title>
+</head>
+<body>
+    <h1>Actividades de la Categoría</h1>
+
+    <select id="categoriaSelect">
+        <option value="">Seleccione una categoría</option>
+        <option value="1">Categoría 1</option>
+        <option value="2">Categoría 2</option>
+        <option value="3">Categoría 3</option>
+        <option value="4">Categoría 4</option>
+        <option value="5">Categoría 5</option>
+    </select>
+
+    <button onclick="cargarActividades()">Buscar</button>
+
+    <ul id="listaActividades"></ul>
+
+    <a href="/dashboard">Volver al Dashboard</a>
+
+    <script>
+        async function cargarActividades() {
+            const categoriaId = document.getElementById("categoriaSelect").value;
+            if (!categoriaId) {
+                alert("Seleccione una categoría.");
+                return;
+            }
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No estás autenticado.");
+                window.location.href = "http://localhost:3001/auth/login";
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3001/actividades/buscar/${categoriaId}/categoria`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("No se pudieron obtener las actividades.");
+                }
+
+                const actividades = await response.json();
+                const lista = document.getElementById("listaActividades");
+                lista.innerHTML = "";
+
+                if (actividades.length > 0) {
+                    actividades.forEach(act => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<strong>${act.nombre}</strong> - ID Categoria: ${act.categoria_id}`;
+                        lista.appendChild(li);
+                    });
+                } else {
+                    lista.innerHTML = "<p>No hay actividades registradas en esta categoría.</p>";
+                }
+            } catch (error) {
+                 console.log('error en consulta', error)
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+
+

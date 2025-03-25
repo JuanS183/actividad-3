@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades por Usuario y Categoría</title>
+</head>
+<body>
+    <h1>Buscar Actividades por Usuario y Categoría</h1>
+
+    <input type="text" id="usuarioId" placeholder="ID del Usuario">
+    <select id="categoriaSelect">
+        <option value="">Seleccione una categoría</option>
+        <option value="1">Categoría 1</option>
+        <option value="2">Categoría 2</option>
+        <option value="3">Categoría 3</option>
+        <option value="4">Categoría 4</option>
+        <option value="5">Categoría 5</option>
+    </select>
+
+    <button onclick="cargarActividadesPorUsuarioCategoria()">Buscar</button>
+
+    <ul id="listaActividades"></ul>
+
+    <a href="/dashboard">Volver al Dashboard</a>
+
+    <script>
+        async function cargarActividadesPorUsuarioCategoria() {
+            const usuarioId = document.getElementById("usuarioId").value.trim();
+            const categoriaId = document.getElementById("categoriaSelect").value;
+            
+            if (!usuarioId || !categoriaId) {
+                alert("Ingrese el ID de usuario y seleccione una categoría.");
+                return;
+            }
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No estás autenticado.");
+                window.location.href = "/auth/login";
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3001/actividades/buscar/${usuarioId}/${categoriaId}/`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.status === 403) {
+                    alert("No tienes permisos de administrador.");
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("No se pudieron obtener las actividades.");
+                }
+
+                const actividades = await response.json();
+                const lista = document.getElementById("listaActividades");
+                lista.innerHTML = "";
+
+                if (actividades.length > 0) {
+                    actividades.forEach(act => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<strong>${act.nombre}</strong> - Categoría: ${act.categoria_id}`;
+                        lista.appendChild(li);
+                    });
+                } else {
+                    lista.innerHTML = "<p>No hay actividades registradas.</p>";
+                }
+            } catch (error) {
+                console.log('Error en consulta', error);
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+

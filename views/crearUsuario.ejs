@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <section id="reg">
+        <aside>
+            <h1>REGISTRO</h1>
+            <form onsubmit="submitRegistro(event)">
+                <div id="pgMsg"></div>
+                <div class="formGroup" id="nameGroup">
+                    <input type="text" name="usuario" placeholder="Nombre de Usuario" required>
+                </div>
+                <div class="formGroup" id="nameGroup">
+                    <input type="text" name="nombre" placeholder="Nombre Completo" required>
+                </div>
+                <div class="formGroup" id="emailGroup">
+                    <input type="email" name="email" placeholder="Correo Electrónico" required>
+                </div>
+                <div class="formGroup" id="nameGroup">
+                    <input type="text" name="telefono" placeholder="Telefono" required>
+                </div>
+                <div class="formGroup" id="nameGroup">
+                    <input type="text" name="direccion" placeholder="Direccion" required>
+                </div>
+                <div class="formGroup" id="passwordGroup">
+                    <input type="password" name="password" placeholder="Contraseña" required>
+                </div>
+                <!--<div class="formGroup" id="roleGroup">
+                    <select name="role">
+                        <option value="BASICO">Básico</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                </div>-->
+                <button type="submit">Registrarse</button>
+                <h3>¿Ya tienes cuenta? <a href="http://localhost:3001/auth/login">Inicia sesión</a></h3>
+            </form>
+        </aside>
+    </section>
+
+    <script>
+        const submitRegistro = async (event) => {
+            event.preventDefault();
+            const usuario = document.querySelector('input[name="usuario"]').value;
+            const nombre = document.querySelector('input[name="nombre"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+            const telefono = document.querySelector('input[name="telefono"]').value;
+            const direccion = document.querySelector('input[name="direccion"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+            //const role = document.querySelector('select[name="role"]').value;
+
+            const response = await fetch('http://localhost:3001/usuarios/crear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, nombre, email, telefono, direccion ,password })
+            });
+
+            const data = await response.json();
+
+            if (response.status === 201) {
+                alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                window.location.href = "http://localhost:3001/auth/login";
+            } else {
+                document.getElementById("pgMsg").innerHTML = `<p style="color: red;">${data.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
+
